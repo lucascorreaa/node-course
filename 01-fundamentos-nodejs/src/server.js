@@ -1,4 +1,4 @@
-import http from 'node:http'
+import http from "node:http";
 
 // request = req
 // response = res
@@ -18,10 +18,9 @@ import http from 'node:http'
 // GET /users => Buscando usuários no back-end
 // GET /users => Criar um usuário no back-end
 
-
 // Early return => No js dentro de uma função, se o codigo bater no return nada abaixo é executado
 
-// Stateful - Stateless 
+// Stateful - Stateless
 
 // JSON - Javascript Object Notation
 
@@ -29,50 +28,45 @@ import http from 'node:http'
 
 // HTTP Status Code
 
-// req/res => streams 
+// req/res => streams
 
+const users = [];
 
-const users = []
+const server = http.createServer(async (req, res) => {
+  const { method, url } = req;
 
-const server = http.createServer(async(req, res) => {
+  const buffers = [];
 
-    const { method, url } = req
+  for await (const chunk of req) {
+    buffers.push(chunk);
+  }
 
-    const buffers = []
+  try {
+    req.body = JSON.parse(Buffer.concat(buffers).toString());
+  } catch {
+    req.body = null;
+  }
 
-    for await (const chunk of req) {
-        buffers.push(chunk)
-    }
+  if (method === "GET" && url === "/users") {
+    // Early return
+    return res
+      .setHeader("Content-type", "application/json")
+      .end(JSON.stringify(users));
+  }
 
-    try {
-        req.body = JSON.parse(Buffer.concat(buffers).toString())
-    } catch {
-        req.body = null
-    }
+  if (method === "POST" && url === "/users") {
+    const { name, email } = req.body;
+    users.push({
+      id: 1,
+      name,
+      email,
+    });
+    return res.writeHead(201).end();
+  }
 
+  return res.writeHead(404).end();
+});
 
-    if (method === 'GET' && url === '/users') {
-
-        // Early return
-        return res
-        .setHeader('Content-type', 'application/json')
-        .end(JSON.stringify(users))
-    }
-
-    if (method === 'POST' && url === '/users') {
-        const { name, email } = req.body
-        users.push({
-            id: 1,
-            name,
-            email
-        })
-        return res.writeHead(201).end()
-    }
-    
-
-    return res.writeHead(404).end()
-})
-
-server.listen(3333)
+server.listen(3333);
 
 // localhost:3333
