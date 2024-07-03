@@ -27,6 +27,8 @@ import http from 'node:http'
 
 // Cabeçalhos (Requisição/Respostas) => Metadados
 
+// HTTP Status Code
+
 
 const users = []
 
@@ -35,7 +37,7 @@ const server = http.createServer((req, res) => {
     const { method, url } = req
 
     // console.log(method, url)
-    console.log(req.headers)
+    // console.log(req.headers)
 
     if (method === 'GET' && url === '/users') {
 
@@ -51,11 +53,11 @@ const server = http.createServer((req, res) => {
             name: 'Fulano',
             email: 'fulano@example.com'
         })
-        return res.end('Criação de usuários')
+        return res.writeHead(201).end()
     }
     
 
-    return res.end('Hello Nodee')
+    return res.writeHead(404).end()
 })
 
 server.listen(3333)
