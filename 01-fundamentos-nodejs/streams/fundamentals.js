@@ -28,7 +28,7 @@
 
 import { Readable, Writable, Transform } from 'node:stream'
 
-class oneToHundredStream extends Readable {
+class OneToHundredStream extends Readable {
 
     index = 1
 
@@ -64,6 +64,6 @@ class InverseNumberStream extends Transform {
     }
 }
 
-new oneToHundredStream()
+new OneToHundredStream()
 .pipe(new InverseNumberStream())
 .pipe(new MultiplyByTebStream())
