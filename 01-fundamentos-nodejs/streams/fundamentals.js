@@ -21,8 +21,12 @@
 // process.stdin   Readable
 //     .pipe(process.stdout) Writable
 
+// chunk => pedaço que a gente leu da stream de leitura, o que está sendo enviado
+// encoding => como que a info está codificada
+// callback => funcão que será chamada quando a stream de escrita terminar de executar aquela informação
 
-import { Readable } from 'node:stream'
+
+import { Readable, Writable, Transform } from 'node:stream'
 
 class oneToHundredStream extends Readable {
 
@@ -36,6 +40,7 @@ class oneToHundredStream extends Readable {
                 this.push(null)
             } else {
                 const buf = Buffer.from(String(i))
+                // chunk
                 this.push(buf)
             }
         }, 1000)
@@ -44,5 +49,21 @@ class oneToHundredStream extends Readable {
 
 }
 
+class MultiplyByTebStream extends Writable {
+    _write(chunk, encoding, callback) {
+        console.log(Number(chunk.toString()) * 10)
+        callback()
+    }
+}
+
+class InverseNumberStream extends Transform {
+    _transform(chunk, encoding, callback) {
+        const transformed = Number(chunk.toString()) * -1
+
+        callback(null, Buffer.from(String(transformed)))
+    }
+}
+
 new oneToHundredStream()
-.pipe(process.stdout)
+.pipe(new InverseNumberStream())
+.pipe(new MultiplyByTebStream())
