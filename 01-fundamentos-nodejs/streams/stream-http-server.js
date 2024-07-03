@@ -1,24 +1,35 @@
-import http from 'node:http'
-import { Transform } from 'node:stream'
+import http from "node:http";
+import { Transform } from "node:stream";
 
 class InverseNumberStream extends Transform {
-    _transform(chunk, encoding, callback) {
-        const transformed = Number(chunk.toString()) * -1
+  _transform(chunk, encoding, callback) {
+    const transformed = Number(chunk.toString()) * -1;
 
-        console.log(transformed)
+    console.log(transformed);
 
-        callback(null, Buffer.from(String(transformed)))
-    }
+    callback(null, Buffer.from(String(transformed)));
+  }
 }
 
 // req => ReadableStream
 // req => WriableStream
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
+  const buffers = [];
 
-    return req
-    .pipe( new InverseNumberStream())
-    .pipe(res)
-})
+  for await (const chunk of req) {
+    buffers.push(chunk);
+  }
 
-server.listen(3334)
+  const fullStreamContent = Buffer.concat(buffers).toString();
+
+  console.log(fullStreamContent);
+
+  return res.end(fullStreamContent);
+
+  // return req
+  // .pipe( new InverseNumberStream())
+  // .pipe(res)
+});
+
+server.listen(3334);
